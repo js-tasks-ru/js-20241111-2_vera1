@@ -1,16 +1,8 @@
 module.exports = {
-  "extends": "eslint:recommended",
-  "rules": {
-    "no-console": 0,
-    "indent": ["warning", 2]
-  },
   env: {
     browser: true,
     es6: true,
-    jest: true,
-	"browser": true,
-    "node": true,
-    "es6": true
+    jest: true
   },
   parser: 'babel-eslint',
   parserOptions: {
