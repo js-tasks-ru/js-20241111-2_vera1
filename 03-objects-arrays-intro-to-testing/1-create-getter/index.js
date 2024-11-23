@@ -4,5 +4,16 @@
  * @returns {function} - function-getter which allow get value from object by set path
  */
 export function createGetter(path) {
-
+  let funFind = (obj) => {
+    let arr = path.split(".");
+    for (let value of arr) {
+      if (value in obj && value !== "toString") {
+        obj = obj[value];
+      } else {
+        return;
+      }
+    }
+    return obj;
+  };
+  return funFind;
 }
