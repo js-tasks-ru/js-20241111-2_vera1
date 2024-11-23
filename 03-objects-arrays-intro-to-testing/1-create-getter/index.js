@@ -4,10 +4,10 @@
  * @returns {function} - function-getter which allow get value from object by set path
  */
 export function createGetter(path) {
-  let funFind = (obj) => {
-    let arr = path.split(".");
+  return (obj) => {
+    const arr = path.split(".");
     for (let value of arr) {
-      if (value in obj && value !== "toString") {
+      if (obj.hasOwnProperty(value)) {
         obj = obj[value];
       } else {
         return;
@@ -15,5 +15,4 @@ export function createGetter(path) {
     }
     return obj;
   };
-  return funFind;
 }
