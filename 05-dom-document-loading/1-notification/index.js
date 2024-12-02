@@ -9,19 +9,6 @@ export default class NotificationMessage {
       this.element = this.createElement();
     }
 
-    // show(elementForParent = null) {
-    //   this.destroy();
-    //   document.body.appendChild(this.element);
-    //   NotificationMessage.lastNatification = this.element;
-
-    //   if (elementForParent !== null) {
-    //     elementForParent.appendChild(this.element);
-    //     this.element = elementForParent;
-    //   }
-    //   this.element.hidden = false;
-    //   this.timerId = setTimeoutsetTimeout(()=>this.remove(), this.duration);
-    // }
-
     show(elementForParent = document.body) {
       if (NotificationMessage.lastNatification) {
         NotificationMessage.lastNatification.destroy();
@@ -29,7 +16,7 @@ export default class NotificationMessage {
       NotificationMessage.lastNatification = this;
       elementForParent.appendChild(this.element);
       this.timerId = setTimeout(()=>this.remove(), this.duration);
-   }
+    }
 
     remove() {
       this.element.remove();
@@ -40,13 +27,9 @@ export default class NotificationMessage {
       this.remove();
     }
 
-    
     createElement() {
       const element = document.createElement('div');
       element.innerHTML = this.createTemplate();
-      if (NotificationMessage.lastNatification === null) {
-        NotificationMessage.lastNatification = element;
-      }
       return element.firstElementChild;
     }
 
