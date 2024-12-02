@@ -49,7 +49,7 @@ export default class NotificationMessage {
 
     createTemplate() {
       return `
-         <div class="${this.getClassForNotification()}" style='--value:${this.duration}ms'> 
+         <div class="notification ${this.type}" style='--value:${this.duration}ms'> 
          <div class="timer"></div>
           <div class="inner-wrapper">
               <div class="notification-header">
@@ -60,15 +60,4 @@ export default class NotificationMessage {
           </div>
           </div>`;
     }
-  
-    getClassForNotification() {
-      if (this.type === "success") {
-        return "notification success";
-      } else if (this.type === "error") {
-        return "notification error";
-      } else {
-        return 'notification';
-      }
-    }
-
 }
