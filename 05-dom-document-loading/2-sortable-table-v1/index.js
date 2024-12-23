@@ -41,46 +41,24 @@ export default class SortableTable {
     });
   }
 
-  sort(fieldValue, orderValue) {
-    this.setAttributeElementRow(orderValue);
-    this.selectSubElements();
-    const { body } = this.subElements;
-    const cellIndexFieldSort = this.headerConfig.findIndex(obj => obj.id === fieldValue);
-    const sortType = this.headerConfig[cellIndexFieldSort].sortType;
-    const elementsRows = body.querySelectorAll('.sortable-table__row');
-    const arrayElementsRows = [];
-    for (let i = 0; i < elementsRows.length; i++) {
-      arrayElementsRows[i] = elementsRows[i];
-    }
-    const arrayElementsRowsSorted = this.sortStrings(arrayElementsRows, orderValue, cellIndexFieldSort, sortType);
-    for (let i = 0; i < arrayElementsRowsSorted.length; i++) {
-      body.append(arrayElementsRowsSorted[i]);
-    }
-  }
+  sort(field, order) {
+    const config = this.headerConfig.find(item => item.id === field);
 
-  setAttributeElementRow(sortType) {
-    const elem = document.body.querySelector(`[data-id='title']`);
-    elem.setAttribute('data-order', sortType);
-  }
-
-  sortStrings(arr, param = 'asc', cellIndexFieldSort, sortType) {
-
-    if (sortType === "string") {
-      if (param === "asc") {
-        return arr.slice().sort((a, b)=>a.children[cellIndexFieldSort].textContent.localeCompare(b.children[cellIndexFieldSort].textContent, ['ru', 'en'], {caseFirst: "upper"}));
-      } else {
-        let sorted = arr.slice().sort((a, b)=>a.children[cellIndexFieldSort].textContent.localeCompare(b.children[cellIndexFieldSort].textContent, ['ru', 'en'], {caseFirst: "lower"}));
-        return sorted.reverse();
-      }
+    if (!config) {
+      return;
     }
 
-    if (sortType === "number") {
-      if (param === "asc") {
-        return arr.slice().sort((a, b)=>a.children[cellIndexFieldSort].textContent.localeCompare(b.children[cellIndexFieldSort].textContent, ['ru', 'en'], { numeric: true }));
-      } else {
-        return arr.slice().sort((a, b)=>b.children[cellIndexFieldSort].textContent.localeCompare(a.children[cellIndexFieldSort].textContent, ['ru', 'en'], { numeric: true }));              
-      }
+    const k = order === 'asc' ? 1 : -1;
+
+    if (config['sortType'] === "string") {
+      this.data.sort((a, b) => k * a[field].localeCompare(b[field], ['ru', 'en'], { caseFirst: 'upper' }));
     }
+
+    if (config['sortType'] === "number") {
+      this.data.sort((a, b) => k * (a[field] - b[field])); 
+    }
+
+    this.subElements.body.innerHTML = this.createTableBodyTemplate();
   }
 
   createTableHeaderTemplate() {
