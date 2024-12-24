@@ -59,25 +59,31 @@ export default class SortableTable {
     }
 
     this.subElements.body.innerHTML = this.createTableBodyTemplate();
+
+    this.addOrderAttribute(field, order);
+  }
+
+  addOrderAttribute(field, order) {
+    const elementOrderOld = this.subElements.header.querySelector(`[data-order]`);
+    if (elementOrderOld) {
+      elementOrderOld.removeAttribute('data-order');
+    }
+    const elementOrderNew = this.subElements.header.querySelector(`[data-id='${field}']`);
+    elementOrderNew.setAttribute('data-order', order);
   }
 
   createTableHeaderTemplate() {
-    return this.headerConfig.map(columnConfig => ( `<div class="sortable-table__cell" data-id="${columnConfig.id}" data-sortable="${columnConfig.sortable}">
-          <span>${columnConfig.title}</span>
-                ${this.createTableHeaderImgTemplate(columnConfig.title)}
-        </span>
+    return this.headerConfig.map(item => (`<div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}">
+          <span>${item.title}</span>
+                ${item.sortable ? this.createArrowTemplateSortColumn(item.title) : ''}
       </div>`
     )).join('');
   }
 
-  createTableHeaderImgTemplate(title) {
-    let result = '';
-    if (title === "Name") {
-      result = `<span data-element="arrow" class="sortable-table__sort-arrow">
-          <span class="sort-arrow"></span>
-        </span>`;
-    }
-    return result;
+  createArrowTemplateSortColumn() {
+    return `<span data-element="arrow" class="sortable-table__sort-arrow">
+    <span class="sort-arrow"></span>
+    </span>`;
   }
 
   createTableBodyTemplate() {
@@ -87,14 +93,14 @@ export default class SortableTable {
   createTableBodyRowTemplate(product) {
     return ` 
       <a href="${product.id}" class="sortable-table__row">
-         ${this.headerConfig.map(columnConfig => this.createTableBodyCellTemplate(columnConfig, product)).join('')}
+         ${this.headerConfig.map(item => this.createTableBodyCellTemplate(item, product)).join('')}
       </a>`; 
   }
 
-  createTableBodyCellTemplate(columnConfig, product) {
-    const fieldId = columnConfig.id;
+  createTableBodyCellTemplate(config, product) {
+    const fieldId = config.id;
     if (fieldId === "images") {
-      return columnConfig.template(product[fieldId]);
+      return config.template(product[fieldId]);
     }
     return `<div class="sortable-table__cell">${product[fieldId]}</div>`;
   }
