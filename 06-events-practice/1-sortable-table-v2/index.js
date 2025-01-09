@@ -4,13 +4,13 @@ export default class SortableTable extends SortableTableV1 {
 
   isSortLocally;
   arrowElement;
-  
+
   constructor(headersConfig, {
     data = [],
     sorted = {}
-  } = {}, 
-  isSortLocally = true) 
-  {
+  } = {},
+  isSortLocally = true) {
+    
     super(headersConfig, data);
 
     this.id = sorted.id;
@@ -21,9 +21,10 @@ export default class SortableTable extends SortableTableV1 {
     this.sort(this.id, this.order);
   }
 
-  sort (idField, sortOrder) {
+  sort(idField, sortOrder) {
     if (this.isSortLocally) {
-      this.sortOnClient(idField, sortOrder);
+      this.sortOnClient(
+        idField, sortOrder);
     } else {
       this.sortOnServer();
     }
@@ -35,7 +36,7 @@ export default class SortableTable extends SortableTableV1 {
 
   sortOnServer() {
     /**  */
-  } 
+  }
 
   handleHeaderPointerDown = (event) => {
     const cellElement = event.target.closest('.sortable-table__cell');
@@ -50,17 +51,16 @@ export default class SortableTable extends SortableTableV1 {
 
     const idField = cellElement.dataset.id;
 
-    let sortOrder = cellElement.dataset.order;
+    const sortOrder = cellElement.dataset.order;
 
-    if (sortOrder === undefined) {
-      sortOrder = 'asc';
-    } else if (sortOrder === 'asc') {
-      sortOrder = 'desc';
+    let order = 'desc';
+    if (sortOrder === 'asc') {
+      order = 'desc';
     } else if (sortOrder === 'desc') {
-      sortOrder = 'asc';
-    } 
+      order = 'asc';
+    }
 
-    this.sort(idField, sortOrder);
+    this.sort(idField, order);
   }
 
   createListeners() {

@@ -55,7 +55,7 @@ export default class SortableTable {
     }
 
     if (config['sortType'] === "number") {
-      this.data.sort((a, b) => k * (a[field] - b[field])); 
+      this.data.sort((a, b) => k * (a[field] - b[field]));
     }
 
     this.subElements.body.innerHTML = this.createTableBodyTemplate();
@@ -75,26 +75,26 @@ export default class SortableTable {
   createTableHeaderTemplate() {
     return this.headerConfig.map(item => (`<div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}">
           <span>${item.title}</span>
-                ${item.sortable ? this.createArrowTemplateSortColumn(item.title) : ''}
+                ${item.sortable ? this.createArrowTemplate() : ''}
       </div>`
     )).join('');
   }
 
-  createArrowTemplateSortColumn() {
+  createArrowTemplate() {
     return `<span data-element="arrow" class="sortable-table__sort-arrow">
     <span class="sort-arrow"></span>
     </span>`;
   }
 
   createTableBodyTemplate() {
-    return this.data.map(product => { return this.createTableBodyRowTemplate(product); }).join(''); 
+    return this.data.map(product => { return this.createTableBodyRowTemplate(product); }).join('');
   }
 
   createTableBodyRowTemplate(product) {
     return ` 
       <a href="${product.id}" class="sortable-table__row">
          ${this.headerConfig.map(item => this.createTableBodyCellTemplate(item, product)).join('')}
-      </a>`; 
+      </a>`;
   }
 
   createTableBodyCellTemplate(config, product) {
