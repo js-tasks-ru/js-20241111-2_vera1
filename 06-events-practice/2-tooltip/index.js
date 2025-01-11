@@ -1,3 +1,6 @@
+const OFFSET_X = 10;
+const OFFSET_Y = 10;
+
 class Tooltip {
 
   static #instance = null;
@@ -65,8 +68,8 @@ class Tooltip {
   }
 
   updatePosition(event) {
-    this.element.style.left = event.clientX + event.target.offsetLeft + 'px';
-    this.element.style.top = event.clientY + event.target.offsetTop + 'px';
+    this.element.style.left = event.clientX + OFFSET_X + 'px';
+    this.element.style.top = event.clientY + OFFSET_Y + 'px';
   }
 
   initialize () {

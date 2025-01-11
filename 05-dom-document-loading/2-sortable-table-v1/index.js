@@ -41,82 +41,66 @@ export default class SortableTable {
     });
   }
 
-  sort(fieldValue, orderValue) {
-    this.setAttributeElementRow(orderValue);
-    this.selectSubElements();
-    const { body } = this.subElements;
-    const cellIndexFieldSort = this.headerConfig.findIndex(obj => obj.id === fieldValue);
-    const sortType = this.headerConfig[cellIndexFieldSort].sortType;
-    const elementsRows = body.querySelectorAll('.sortable-table__row');
-    const arrayElementsRows = [];
-    for (let i = 0; i < elementsRows.length; i++) {
-      arrayElementsRows[i] = elementsRows[i];
+  sort(field, order) {
+    const config = this.headerConfig.find(item => item.id === field);
+
+    if (!config) {
+      return;
     }
-    const arrayElementsRowsSorted = this.sortStrings(arrayElementsRows, orderValue, cellIndexFieldSort, sortType);
-    for (let i = 0; i < arrayElementsRowsSorted.length; i++) {
-      body.append(arrayElementsRowsSorted[i]);
+
+    const k = order === 'asc' ? 1 : -1;
+
+    if (config['sortType'] === "string") {
+      this.data.sort((a, b) => k * a[field].localeCompare(b[field], ['ru', 'en'], { caseFirst: 'upper' }));
     }
+
+    if (config['sortType'] === "number") {
+      this.data.sort((a, b) => k * (a[field] - b[field]));
+    }
+
+    this.subElements.body.innerHTML = this.createTableBodyTemplate();
+
+    this.addOrderAttribute(field, order);
   }
 
-  setAttributeElementRow(sortType) {
-    const elem = document.body.querySelector(`[data-id='title']`);
-    elem.setAttribute('data-order', sortType);
-  }
-
-  sortStrings(arr, param = 'asc', cellIndexFieldSort, sortType) {
-
-    if (sortType === "string") {
-      if (param === "asc") {
-        return arr.slice().sort((a, b)=>a.children[cellIndexFieldSort].textContent.localeCompare(b.children[cellIndexFieldSort].textContent, ['ru', 'en'], {caseFirst: "upper"}));
-      } else {
-        let sorted = arr.slice().sort((a, b)=>a.children[cellIndexFieldSort].textContent.localeCompare(b.children[cellIndexFieldSort].textContent, ['ru', 'en'], {caseFirst: "lower"}));
-        return sorted.reverse();
-      }
+  addOrderAttribute(field, order) {
+    const elementOrderOld = this.subElements.header.querySelector(`[data-order]`);
+    if (elementOrderOld) {
+      elementOrderOld.removeAttribute('data-order');
     }
-
-    if (sortType === "number") {
-      if (param === "asc") {
-        return arr.slice().sort((a, b)=>a.children[cellIndexFieldSort].textContent.localeCompare(b.children[cellIndexFieldSort].textContent, ['ru', 'en'], { numeric: true }));
-      } else {
-        return arr.slice().sort((a, b)=>b.children[cellIndexFieldSort].textContent.localeCompare(a.children[cellIndexFieldSort].textContent, ['ru', 'en'], { numeric: true }));              
-      }
-    }
+    const elementOrderNew = this.subElements.header.querySelector(`[data-id='${field}']`);
+    elementOrderNew.setAttribute('data-order', order);
   }
 
   createTableHeaderTemplate() {
-    return this.headerConfig.map(columnConfig => ( `<div class="sortable-table__cell" data-id="${columnConfig.id}" data-sortable="${columnConfig.sortable}">
-          <span>${columnConfig.title}</span>
-                ${this.createTableHeaderImgTemplate(columnConfig.title)}
-        </span>
+    return this.headerConfig.map(item => (`<div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}">
+          <span>${item.title}</span>
+                ${item.sortable ? this.createArrowTemplate() : ''}
       </div>`
     )).join('');
   }
 
-  createTableHeaderImgTemplate(title) {
-    let result = '';
-    if (title === "Name") {
-      result = `<span data-element="arrow" class="sortable-table__sort-arrow">
-          <span class="sort-arrow"></span>
-        </span>`;
-    }
-    return result;
+  createArrowTemplate() {
+    return `<span data-element="arrow" class="sortable-table__sort-arrow">
+    <span class="sort-arrow"></span>
+    </span>`;
   }
 
   createTableBodyTemplate() {
-    return this.data.map(product => { return this.createTableBodyRowTemplate(product); }).join(''); 
+    return this.data.map(product => { return this.createTableBodyRowTemplate(product); }).join('');
   }
 
   createTableBodyRowTemplate(product) {
     return ` 
       <a href="${product.id}" class="sortable-table__row">
-         ${this.headerConfig.map(columnConfig => this.createTableBodyCellTemplate(columnConfig, product)).join('')}
-      </a>`; 
+         ${this.headerConfig.map(item => this.createTableBodyCellTemplate(item, product)).join('')}
+      </a>`;
   }
 
-  createTableBodyCellTemplate(columnConfig, product) {
-    const fieldId = columnConfig.id;
+  createTableBodyCellTemplate(config, product) {
+    const fieldId = config.id;
     if (fieldId === "images") {
-      return columnConfig.template(product[fieldId]);
+      return config.template(product[fieldId]);
     }
     return `<div class="sortable-table__cell">${product[fieldId]}</div>`;
   }
