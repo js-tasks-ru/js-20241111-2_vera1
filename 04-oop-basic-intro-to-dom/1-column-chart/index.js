@@ -1,6 +1,7 @@
 export default class ColumnChart {
 
   element;
+  subElements = {};
   chartHeight = 50;
 
   constructor({
@@ -17,6 +18,7 @@ export default class ColumnChart {
     this.formatHeading = formatHeading;
   
     this.element = this.createElement(this.createTemplate());
+    this.selectSubElements();
   }
 
   createElement(template) {
@@ -35,14 +37,14 @@ export default class ColumnChart {
       <div class="column-chart__container">
         <div data-element="header" class="column-chart__header">${this.formatHeading(this.value)}</div>
         <div data-element="body" class="column-chart__chart">
-               ${this.createChartColumnTemplate()}
+               ${this.createBodyTemplate()}
         </div>
       </div>
     </div>
   </div>`;
   }
-
-  createChartColumnTemplate() {
+  
+  createBodyTemplate() {
     return this.getColumnProps().map(({value, percent})=> (`<div style="--value: ${value}" data-tooltip="${percent}"></div>`)).join('');
   }
 
@@ -66,6 +68,12 @@ export default class ColumnChart {
     return this.data.length ? 'column-chart' : 'column-chart column-chart_loading';
   }
 
+  selectSubElements() {
+    this.element.querySelectorAll('[data-element]').forEach(element => {
+      this.subElements[element.dataset.element] = element;
+    });
+  }
+
   remove() {
     this.element.remove();
   }
@@ -76,6 +84,9 @@ export default class ColumnChart {
 
   update(newData) {
     this.data = newData;
-    this.element.querySelector(`[data-element="body"]`).innerHTML = this.createChartColumnTemplate();
+    this.element.querySelector(`[data-element="body"]`).innerHTML = this.createBodyTemplate();
+    this.element.className = this.creatChartClasses();
+    this.element.querySelector(`[data-element="header"]`).innerHTML = this.formatHeading(this.value);
   }
+
 }  
