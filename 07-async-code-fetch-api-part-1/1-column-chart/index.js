@@ -45,8 +45,11 @@ export default class ColumnChart extends ColumnChart1 {
       const response = await fetchJson(url);
       this.data = Object.values(response);
 
-      this.element.getElementsByClassName('dashboard__chart_orders').parentElement.innerHTML = this.createTemplate();
-     
+      const titleElement = this.element.getElementsByClassName('column-chart__title');
+      if (titleElement != null && titleElement.innerHTML === 'orders') {
+        this.element.parentElement.innerHTML = this.createTemplate();
+      }
+
       return response;
     } catch (err) {
       console.log(err);
