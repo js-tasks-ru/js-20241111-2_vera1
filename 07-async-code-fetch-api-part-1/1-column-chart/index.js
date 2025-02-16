@@ -31,9 +31,10 @@ export default class ColumnChart extends ColumnChart1 {
       .then(data => {
         this.data = Object.values(data);
         this.sumOfValuesData(this.data);
-        if (document.getElementById(this.label) != null) {
-          document.getElementById(this.label).innerHTML = this.createTemplate();
-        }
+        console.log(this.element.parentElement);// Здесь есть 
+        this.element.parentElement.innerHTML = this.createTemplate();
+
+        console.log(this.element.parentElement);// А здесь ужк null - потому в тестах ошибка
       })
       .catch(err => console.log(err));
   }
@@ -43,11 +44,9 @@ export default class ColumnChart extends ColumnChart1 {
       const url = this.createUrl(from, to);
       const response = await fetchJson(url);
       this.data = Object.values(response);
-      this.subElements.body.innerHTML = this.createBodyTemplate();
-      if (document.getElementById(this.label) != null) {
-        this.sumOfValuesData(this.data);
-        document.getElementById(this.label).innerHTML = this.createTemplate();
-      }
+
+      this.element.getElementsByClassName('dashboard__chart_orders').parentElement.innerHTML = this.createTemplate();
+     
       return response;
     } catch (err) {
       console.log(err);
@@ -56,7 +55,7 @@ export default class ColumnChart extends ColumnChart1 {
 
   sumOfValuesData(data) {
     let sumValues = 0;
-    for (let value of data) {
+    for (const value of data) {
       sumValues = sumValues + value;
     }
     this.value = sumValues;
