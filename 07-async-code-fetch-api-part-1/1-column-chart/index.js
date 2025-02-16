@@ -29,12 +29,8 @@ export default class ColumnChart extends ColumnChart1 {
     fetch(this.createUrl(from, to))
       .then(response => response.json())
       .then(data => {
-        this.data = Object.values(data);
-        this.sumOfValuesData(this.data);
-        console.log(this.element.parentElement);// Здесь есть 
-        this.element.parentElement.innerHTML = this.createTemplate();
-
-        console.log(this.element.parentElement);// А здесь ужк null - потому в тестах ошибка
+        this.setSumOfValuesData(Object.values(data));
+        super.update(Object.values(data));
       })
       .catch(err => console.log(err));
   }
@@ -44,24 +40,15 @@ export default class ColumnChart extends ColumnChart1 {
       const url = this.createUrl(from, to);
       const response = await fetchJson(url);
       this.data = Object.values(response);
-
-      const titleElement = this.element.getElementsByClassName('column-chart__title');
-      if (titleElement != null && titleElement.innerHTML === 'orders') {
-        this.element.parentElement.innerHTML = this.createTemplate();
-      }
-
+      this.setSumOfValuesData(this.data);
+      super.update(this.data);
       return response;
     } catch (err) {
       console.log(err);
     }
   }
 
-  sumOfValuesData(data) {
-    let sumValues = 0;
-    for (const value of data) {
-      sumValues = sumValues + value;
-    }
-    this.value = sumValues;
+  setSumOfValuesData(data) {
+    this.value = data.reduce((sum, current)=>sum + current, 0);
   }
-  
 }
