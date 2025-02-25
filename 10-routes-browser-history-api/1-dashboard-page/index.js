@@ -40,8 +40,7 @@ export default class Page {
     this.element = this.createElement(this.createTemplate());
     this.selectSubElements();
 
-    this.createListeners();
-    this.destroyListners();
+    this.initEventListeners();
   }
 
   async update(newDate) {
@@ -110,27 +109,16 @@ export default class Page {
   }
 
   initEventListeners() {
-    const {input, selector} = this.subElements;
-
-    document.addEventListener('click', this.onDocumentClick, true);
-    input.addEventListener('click', () => this.toggle());
-    selector.addEventListener('click', event => this.onSelectorClick(event));
+    this.subElements.rangePicker.addEventListener('click', event => this.handleSelectorClick(event));
   }
+  
+  handleSelectorClick(event) {
 
-  createListeners() {
-    this.subElements.rangePicker.addEventListener('click', event => this.onSelectorClick(event));
-  }
-
-  destroyListners() {
-    this.subElements.rangePicker.removeEventListener('click', event => this.onSelectorClick(event));
-  }
-
-  onSelectorClick({target}) {
-    if (!target.classList.contains('rangepicker__cell')) {
+    if (!event.target.classList.contains('rangepicker__cell')) {
       return;
     }
 
-    const { value } = target.dataset;
+    const { value } = event.target.dataset;
 
     if (value) {
       const dateValue = new Date(value);
@@ -175,10 +163,11 @@ export default class Page {
   }
 
   remove() {
+    this.subElements.rangePicker.addEventListener('click', event => this.handleSelectorClick(event));
     this.element.remove();
   }
 
   destroy() {
-    this.element.remove();
+    this.remove();
   }
 }
