@@ -112,7 +112,7 @@ export default class Page {
     this.subElements.rangePicker.addEventListener('click', event => this.handleSelectorClick(event));
   }
   
-  handleSelectorClick(event) {
+  handleSelectorClick = (event) => {
 
     if (!event.target.classList.contains('rangepicker__cell')) {
       return;
