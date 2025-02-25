@@ -63,7 +63,7 @@ export default class Page {
   }
 
   render() {
-    this.getCharts();
+    this.appendElements();
     return this.element;
   }
 
@@ -73,7 +73,7 @@ export default class Page {
     return element.firstElementChild;
   }
 
-  getCharts() {
+  appendElements() {
     this.subElements.ordersChart.append(this.ordersChart.element);
     this.subElements.salesChart.append(this.salesChart.element);
     this.subElements.customersChart.append(this.customersChart.element);
@@ -109,7 +109,7 @@ export default class Page {
   }
 
   initEventListeners() {
-    this.subElements.rangePicker.addEventListener('click', event => this.handleSelectorClick(event));
+    this.subElements.rangePicker.addEventListener('click', this.handleSelectorClick);
   }
   
   handleSelectorClick = (event) => {
