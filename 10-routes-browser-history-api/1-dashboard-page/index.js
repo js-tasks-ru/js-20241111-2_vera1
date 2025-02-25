@@ -163,11 +163,11 @@ export default class Page {
   }
 
   remove() {
-    this.subElements.rangePicker.addEventListener('click', event => this.handleSelectorClick(event));
     this.element.remove();
   }
 
   destroy() {
+    this.subElements.rangePicker.removeEventListener('click', this.handleSelectorClick);
     this.remove();
   }
 }
