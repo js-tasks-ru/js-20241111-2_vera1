@@ -20,8 +20,7 @@ export default class ProductForm {
 
   async render() {
     try {
-      //ПОЧЕМУ ЕСТЬ РАЗНИЦА С ТЕСТАМИ В КАКОМ ПОРЯДКЕ ВЫЗЫВАТЬ???
-      //ЕСЛИ НАОБАРОТ НАПИСАТЬ, ТО ОН И В ЛОГАХ СНАЧАЛА ВСЁ РАВНО КАТГОРИИ ПОКАЗЫВАЕТ, А ПОТОМ ПРОДУКТЫ
+
       const urlCategories = new URL("/api/rest/categories", BACKEND_URL);
       urlCategories.searchParams.set('_sort', 'weight');
       urlCategories.searchParams.set('_refs', 'subcategory');
@@ -30,8 +29,8 @@ export default class ProductForm {
       const urlProduct = new URL("/api/rest/products", BACKEND_URL);
       urlProduct.searchParams.set('id', this.productId);
       const data = await fetchJson(urlProduct);
-      //console.log(data);
-      //Добавление в шаблон
+
+
       // if (data && Object.values(data).length && dataCategories && Object.values(dataCategories).length) {
 
       const {
@@ -45,30 +44,26 @@ export default class ProductForm {
         images
       } = data[0];
 
-      //Возьмём форму
-      //console.log(document.forms); Почему не работает так? Как форма. Потому чт она этот момент ещё не добавлен элемент
-
       let {productForm, imageListContainer} = this.subElements;
 
-      productForm.querySelector(`[name="title"]`).value = title;
-      productForm.querySelector(`[name="description"]`).value = description;
-      productForm.querySelector(`[name="price"]`).value = price;
-      productForm.querySelector(`[name="quantity"]`).value = quantity;
-      productForm.querySelector(`[name="status"]`).value = status;
-      productForm.querySelector(`[name="discount"]`).value = discount;
+      productForm.querySelector(`[name="title"]`).value = title; //escapeHtml(String(title)); из-за тестов "10.1&quot; 
+      productForm.querySelector(`[name="description"]`).innerHTML = escapeHtml(String(description));
+      productForm.querySelector(`[name="price"]`).value = escapeHtml(String(price));
+      productForm.querySelector(`[name="quantity"]`).value = escapeHtml(String(quantity));
+      productForm.querySelector(`[name="status"]`).value = escapeHtml(String(status));
+      productForm.querySelector(`[name="discount"]`).value = escapeHtml(String(discount));
 
-      //let elementSelectSubcategory = productForm.querySelector(`[name="subcategory"]`);
       let elementSelectSubcategory = productForm.querySelector('#subcategory');
 
       const mapNamesCategories = new Map();
 
       const dataCategoriesArray = Object.values(dataCategories);
-        
+              
       for (const category of dataCategoriesArray) {
         for (const subcategory of category.subcategories) {
-          mapNamesCategories.set(subcategory.id, `${category.title} > ${subcategory.title}`);
+          mapNamesCategories.set(escapeHtml(String(subcategory.id)), `${escapeHtml(String(category.title))} > ${escapeHtml(String(subcategory.title))}`);
         }
-      }
+      }//Здесь берётся из сервера из dataCategories и экранируется, а далее уже проверенные все идут значения
 
       for (let categoryKey of mapNamesCategories.keys()) {
         let option = document.createElement('option');
@@ -83,7 +78,7 @@ export default class ProductForm {
       let elementSortableList = imageListContainer.querySelector(`[class="sortable-list"]`);
       for (const image of images) {
         const {source, url} = image;
-        const elementLi = this.createElementLi(source, url);
+        const elementLi = this.createElementLi(escapeHtml(String(source)), escapeHtml(String(url)));
         elementSortableList.appendChild(elementLi);
       }
       // }
@@ -146,14 +141,6 @@ export default class ProductForm {
         <label class="form-label">Фото</label>
         <div data-element="imageListContainer">
         <ul class="sortable-list">
-        <li class="products-edit__imagelist-item sortable-list__item" style="">
-
-
-          <button type="button">
-            <img src="icon-trash.svg" data-delete-handle="" alt="delete">
-          </button>
-          
-          </li>
           
           </ul></div>
         <button type="button" name="uploadImage" class="button-primary-outline">
@@ -200,7 +187,7 @@ export default class ProductForm {
 
   
   async save() {
-    let {productForm } = this.subElements;
+    const {productForm } = this.subElements;
     const url = new URL("/api/rest/products", BACKEND_URL);//https://course-js.javascript.ru/api/rest/products
     try {
       const response = await fetchJson(url, {
@@ -208,7 +195,12 @@ export default class ProductForm {
         body: new FormData(productForm)
       });
 
-      const result = await response.json();
+      // const result = await response.json();
+
+      //Генерируем событие - запускаем событие - своё
+      this.element.dispatchEvent(new CustomEvent('product-updated', {
+        detail: { name: "CustomEvent - product-updated" }
+      }));
 
     } catch (err) {
       console.log(err);
