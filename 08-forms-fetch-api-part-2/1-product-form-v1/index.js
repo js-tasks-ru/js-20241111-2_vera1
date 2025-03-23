@@ -9,10 +9,11 @@ export default class ProductForm {
 
   element;
   subElements = {};
-  productForm = {};
   dataCategories = [];
+  dataProduct = [];
+  subcategoryFromDataProduct = "";
 
-  constructor (productId) {
+  constructor (productId = null) {
     this.productId = productId;
     this.element = this.createElement(this.createTemplate());
     this.getSubElements();
@@ -20,74 +21,86 @@ export default class ProductForm {
 
   async render() {
     try {
-
+      
       const urlCategories = new URL("/api/rest/categories", BACKEND_URL);
       urlCategories.searchParams.set('_sort', 'weight');
       urlCategories.searchParams.set('_refs', 'subcategory');
-      const dataCategories = await fetchJson(urlCategories);
-
-      const urlProduct = new URL("/api/rest/products", BACKEND_URL);
-      urlProduct.searchParams.set('id', this.productId);
-      const data = await fetchJson(urlProduct);
-
-
-      // if (data && Object.values(data).length && dataCategories && Object.values(dataCategories).length) {
-
-      const {
-        title,
-        description,
-        quantity,
-        subcategory,
-        status,
-        price,
-        discount,
-        images
-      } = data[0];
+      this.dataCategories = await fetchJson(urlCategories);
 
       let {productForm, imageListContainer} = this.subElements;
+     
+      if (this.productId !== null) {
+        const urlProduct = new URL("/api/rest/products", BACKEND_URL);
+        urlProduct.searchParams.set('id', this.productId);
+        this.dataProduct = await fetchJson(urlProduct);
+  
+        this.renderProductFormElement(productForm);
+        this.renderImageListContainerElement(imageListContainer);
+      } 
 
-      productForm.querySelector(`[name="title"]`).value = title; //escapeHtml(String(title)); из-за тестов "10.1&quot; 
-      productForm.querySelector(`[name="description"]`).innerHTML = escapeHtml(String(description));
-      productForm.querySelector(`[name="price"]`).value = escapeHtml(String(price));
-      productForm.querySelector(`[name="quantity"]`).value = escapeHtml(String(quantity));
-      productForm.querySelector(`[name="status"]`).value = escapeHtml(String(status));
-      productForm.querySelector(`[name="discount"]`).value = escapeHtml(String(discount));
-
-      let elementSelectSubcategory = productForm.querySelector('#subcategory');
-
-      const mapNamesCategories = new Map();
-
-      const dataCategoriesArray = Object.values(dataCategories);
-              
-      for (const category of dataCategoriesArray) {
-        for (const subcategory of category.subcategories) {
-          mapNamesCategories.set(escapeHtml(String(subcategory.id)), `${escapeHtml(String(category.title))} > ${escapeHtml(String(subcategory.title))}`);
-        }
-      }//Здесь берётся из сервера из dataCategories и экранируется, а далее уже проверенные все идут значения
-
-      for (let categoryKey of mapNamesCategories.keys()) {
-        let option = document.createElement('option');
-        option.value = categoryKey;
-        option.innerHTML = mapNamesCategories.get(categoryKey);
-        if (categoryKey === subcategory) {
-          option.selected = true;
-        }
-        elementSelectSubcategory.appendChild(option);
-      }
-
-      let elementSortableList = imageListContainer.querySelector(`[class="sortable-list"]`);
-      for (const image of images) {
-        const {source, url} = image;
-        const elementLi = this.createElementLi(escapeHtml(String(source)), escapeHtml(String(url)));
-        elementSortableList.appendChild(elementLi);
-      }
-      // }
+      this.renderSubcategoryElement(productForm);
 
       productForm.addEventListener('submit', this.handleSubmit);
+      productForm.addEventListener('click', this.handleClick);
 
       return this.element;
     } catch (err) {
       console.log(err);
+    }
+  }
+
+  renderProductFormElement(productForm) {
+    const {
+      title,
+      description,
+      subcategory,
+      quantity,
+      status,
+      price,
+      discount,
+    } = this.dataProduct[0];
+
+    this.subcategoryFromDataProduct = subcategory;
+
+    productForm.querySelector(`[name="title"]`).value = title; //escapeHtml(String(title)); из-за тестов "10.1&quot; 
+    productForm.querySelector(`[name="description"]`).innerHTML = escapeHtml(String(description));
+    productForm.querySelector(`[name="price"]`).value = escapeHtml(String(price));
+    productForm.querySelector(`[name="quantity"]`).value = escapeHtml(String(quantity));
+    productForm.querySelector(`[name="status"]`).value = escapeHtml(String(status));
+    productForm.querySelector(`[name="discount"]`).value = escapeHtml(String(discount));
+  }
+
+  renderSubcategoryElement(productForm) {
+    let elementSubcategory = productForm.querySelector('#subcategory');
+    const namesCategories = new Map();
+    const dataCategoriesArray = Object.values(this.dataCategories);
+    for (const category of dataCategoriesArray) {
+      for (const subcategory of category.subcategories) {
+        namesCategories.set(escapeHtml(String(subcategory.id)), `${escapeHtml(String(category.title))} > ${escapeHtml(String(subcategory.title))}`);
+      }
+    }
+
+    for (let categoryKey of namesCategories.keys()) {
+      let option = document.createElement('option');
+      option.value = categoryKey;
+      option.innerHTML = namesCategories.get(categoryKey);
+      if (categoryKey === this.subcategoryFromDataProduct) {
+        option.selected = true;
+      }
+      elementSubcategory.appendChild(option);
+    }
+  }
+
+  renderImageListContainerElement(imageListContainer) {
+    let elementImageListContainer = imageListContainer.querySelector(`[class="sortable-list"]`);
+    const {
+      images
+    } = this.dataProduct[0];
+
+    for (const image of images) {
+      const {source, url} = image;
+      const elementLi = this.createElementLi(escapeHtml(String(source)), escapeHtml(String(url)));
+      elementImageListContainer.appendChild(elementLi);
     }
   }
 
@@ -142,7 +155,8 @@ export default class ProductForm {
         <div data-element="imageListContainer">
         <ul class="sortable-list">
           
-          </ul></div>
+          </ul>
+          </div>
         <button type="button" name="uploadImage" class="button-primary-outline">
             <span>Загрузить</span>
         </button>
@@ -184,20 +198,16 @@ export default class ProductForm {
   </div>
     `;
   }
-
   
   async save() {
     const {productForm } = this.subElements;
-    const url = new URL("/api/rest/products", BACKEND_URL);//https://course-js.javascript.ru/api/rest/products
+    const url = new URL("/api/rest/products", BACKEND_URL);
     try {
       const response = await fetchJson(url, {
         method: 'PATCH',
         body: new FormData(productForm)
       });
 
-      // const result = await response.json();
-
-      //Генерируем событие - запускаем событие - своё
       this.element.dispatchEvent(new CustomEvent('product-updated', {
         detail: { name: "CustomEvent - product-updated" }
       }));
@@ -207,12 +217,36 @@ export default class ProductForm {
     }
   }
 
-  handleSubmit = (event) => {
-    event.preventDefault();
-    this.save();
+  async add() {
+    const {productForm } = this.subElements;
+    const url = new URL("/api/rest/products", BACKEND_URL);
+    try {
+      const response = await fetchJson(url, {
+        method: 'PUT',
+        body: new FormData(productForm)
+      });
+
+      this.element.dispatchEvent(new CustomEvent('product-saved', {
+        detail: { name: "CustomEvent - product-saved" }
+      }));
+
+    } catch (err) {
+      console.log(err);
+    }
   }
 
+  handleSubmit = (event) => {
+    event.preventDefault();
 
+    if (this.productId !== null) {
+      this.save();
+    } else {
+      this.add();
+    }
+  }
+
+  handleClick = (event) => {
+  }
 
   remove() {
     this.element.remove();
