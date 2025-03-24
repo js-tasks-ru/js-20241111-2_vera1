@@ -245,7 +245,41 @@ export default class ProductForm {
     }
   }
 
-  handleClick = (event) => {
+  handleClick = () => {
+    const inputElement = document.createElement('input');
+    inputElement.type = 'file';
+    inputElement.accept = 'image/*';
+
+    inputElement.onchange = async() => {
+      const [file] = inputElement.files;
+      
+      if (file) {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+          const urlPOST = new URL('https://api.imgur.com/3/image');
+          const responsePOST = await fetchJson(urlPOST, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              Authorization: `Client-ID ${IMGUR_CLIENT_ID}`,
+            }
+          }
+          );
+          const idImage = responsePOST.data.id;
+          const urlGET = new URL(`https://i.imgur.com/${idImage}.jpeg`);
+          const responseGET = fetchJson(urlGET); //403 err
+
+        } catch (err) {
+          console.log(err);
+        }
+      }
+
+    };
+
+    document.body.append(inputElement);
+    inputElement.click();
   }
 
   remove() {
