@@ -245,41 +245,77 @@ export default class ProductForm {
     }
   }
 
-  handleClick = () => {
-    const inputElement = document.createElement('input');
-    inputElement.type = 'file';
-    inputElement.accept = 'image/*';
+  createImagePreview() {
+    const {imageListContainer} = this.subElements;
+    const sortableListElement = imageListContainer.firstElementChild;
+    const liElement = document.createElement('li');
+    liElement.className = 'products-edit__imagelist-item sortable-list__item';
+    const spanElement = document.createElement('span');
+    const imgIconGrabElement = document.createElement('img');
+    imgIconGrabElement.src = 'icon-grab.svg';
+    imgIconGrabElement.alt = 'grab';
+    imgIconGrabElement.dataset.grabHandle = '';
+    spanElement.appendChild(imgIconGrabElement);
+    liElement.appendChild(spanElement);
+    sortableListElement.appendChild(liElement);
+    return spanElement;
+  }
 
-    inputElement.onchange = async() => {
-      const [file] = inputElement.files;
-      
-      if (file) {
-        const formData = new FormData();
-        formData.append('image', file);
+  handleClick = (event) => {
 
-        try {
-          const urlPOST = new URL('https://api.imgur.com/3/image');
-          const responsePOST = await fetchJson(urlPOST, {
-            method: 'POST',
-            body: formData,
-            headers: {
-              Authorization: `Client-ID ${IMGUR_CLIENT_ID}`,
+    const target = event.target.closest('button');
+
+    if (target && target.name === 'uploadImage') {
+
+      const inputElement = document.createElement('input');
+      inputElement.type = 'file';
+      inputElement.accept = 'image/*';
+
+      const imgElement = document.createElement('img');
+      imgElement.className = 'sortable-table__cell-img';
+      imgElement.alt = 'Image';
+      const imagePreview = this.createImagePreview();
+
+      inputElement.onchange = async() => {
+
+        const reader = new FileReader();
+        const [file] = inputElement.files;
+
+        if (file) {
+          reader.readAsDataURL(file);
+
+          reader.onload = function() {
+            console.log(reader.result);
+            imgElement.src = reader.result;
+            imagePreview.appendChild(imgElement);
+            inputElement.type = 'hidden';
+          };
+
+          reader.onerror = function() {
+            console.log(reader.error);
+          };
+
+          const formData = new FormData();
+          formData.append('image', file);
+
+          try {
+            const urlPOST = new URL('https://api.imgur.com/3/image');
+            const responsePOST = await fetchJson(urlPOST, {
+              method: 'POST',
+              body: formData,
+              headers: {
+                Authorization: `Client-ID ${IMGUR_CLIENT_ID}`,
+              }
             }
-          }
-          );
-          const idImage = responsePOST.data.id;
-          const urlGET = new URL(`https://i.imgur.com/${idImage}.jpeg`);
-          const responseGET = fetchJson(urlGET); //403 err
-
-        } catch (err) {
-          console.log(err);
+            );
+          } catch (err) {
+            console.log(err);
+          } 
         }
-      }
-
-    };
-
-    document.body.append(inputElement);
-    inputElement.click();
+      };
+      document.body.append(inputElement);
+      inputElement.click();
+    }
   }
 
   remove() {
