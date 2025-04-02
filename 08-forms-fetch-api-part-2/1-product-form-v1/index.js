@@ -62,12 +62,12 @@ export default class ProductForm {
 
     this.subcategoryFromDataProduct = subcategory;
 
-    productForm.querySelector(`[name="title"]`).value = title; //escapeHtml(String(title)); из-за тестов "10.1&quot; 
-    productForm.querySelector(`[name="description"]`).innerHTML = escapeHtml(String(description));
-    productForm.querySelector(`[name="price"]`).value = escapeHtml(String(price));
-    productForm.querySelector(`[name="quantity"]`).value = escapeHtml(String(quantity));
-    productForm.querySelector(`[name="status"]`).value = escapeHtml(String(status));
-    productForm.querySelector(`[name="discount"]`).value = escapeHtml(String(discount));
+    productForm.querySelector(`[name="title"]`).value = title;
+    productForm.querySelector(`[name="description"]`).innerHTML = String(description);
+    productForm.querySelector(`[name="price"]`).value = String(price);
+    productForm.querySelector(`[name="quantity"]`).value = String(quantity);
+    productForm.querySelector(`[name="status"]`).value = String(status);
+    productForm.querySelector(`[name="discount"]`).value = String(discount);
   }
 
   renderSubcategoryElement(productForm) {
