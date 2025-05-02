@@ -105,6 +105,11 @@ export default class SortableTable {
     return `<div class="sortable-table__cell">${product[fieldId]}</div>`;
   }
 
+  update(newData) {
+    this.data = newData;
+    this.element.querySelector(`[data-element="body"]`).innerHTML = this.createTableBodyTemplate();
+  }
+
   destroy() {
     this.element.remove();
   }

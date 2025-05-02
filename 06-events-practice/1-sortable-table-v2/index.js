@@ -23,10 +23,9 @@ export default class SortableTable extends SortableTableV1 {
 
   sort(idField, sortOrder) {
     if (this.isSortLocally) {
-      this.sortOnClient(
-        idField, sortOrder);
+      this.sortOnClient(idField, sortOrder);
     } else {
-      this.sortOnServer();
+      this.sortOnServer(idField, sortOrder);
     }
   }
 
@@ -34,7 +33,7 @@ export default class SortableTable extends SortableTableV1 {
     super.sort(idField, sortOrder);
   }
 
-  sortOnServer() {
+  sortOnServer(idField, sortOrder) {
     /**  */
   }
 
@@ -59,6 +58,8 @@ export default class SortableTable extends SortableTableV1 {
     } else if (sortOrder === 'desc') {
       order = 'asc';
     }
+
+    cellElement.dataset.order = order;
 
     this.sort(idField, order);
   }
