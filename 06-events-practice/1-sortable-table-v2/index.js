@@ -3,8 +3,7 @@ import SortableTableV1 from '../../05-dom-document-loading/2-sortable-table-v1/i
 export default class SortableTable extends SortableTableV1 {
 
   isSortLocally;
-  arrowElement;
-
+ 
   constructor(headersConfig, {
     data = [],
     sorted = {}
@@ -58,8 +57,6 @@ export default class SortableTable extends SortableTableV1 {
     } else if (sortOrder === 'desc') {
       order = 'asc';
     }
-
-    cellElement.dataset.order = order;
 
     this.sort(idField, order);
   }

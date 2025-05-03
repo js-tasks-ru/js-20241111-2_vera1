@@ -68,21 +68,19 @@ export default class SortableTable extends SortableTable2 {
 
     if (data.length) {
       super.update(Object.values(data));
-      this.updateAttributeOrderHeader(id, order);
     }
     
     return data;
   }
 
-  sortOnClient(idField, sortOrder) {
-    super.sort(idField, sortOrder);
-  }
-
   async sortOnServer (id, order, start = this.start, end = this.end) {
     try {
       const data = await this.loadData(id, order, start, end);
-      super.update(Object.values(data));
-      this.updateAttributeOrderHeader(id, order);
+      const config = this.headerConfig.find(item => item.id === id);
+      if (config.sortable === true) {
+        super.update(Object.values(data));
+        super.updateHeaders(id, order);
+      }
     } catch (err) {
       throw err;
     }
@@ -141,14 +139,6 @@ export default class SortableTable extends SortableTable2 {
     }).join('');
   }
 
-  updateAttributeOrderHeader(id, order) {
-    const elementOrderOld = this.subElements.header.querySelector(`[data-order]`);
-    if (elementOrderOld) {
-      elementOrderOld.removeAttribute('data-order');
-    }
-    const elementOrderNew = this.subElements.header.querySelector(`[data-id='${id}']`);
-    elementOrderNew.setAttribute('data-order', order);
-  }
 
   remove() {
     super.remove();

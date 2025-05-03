@@ -2,18 +2,36 @@ export default class SortableTable {
 
   element;
   subElements = {};
+  arrowElement;
 
   constructor(headerConfig = [], data = []) {
     this.headerConfig = headerConfig;
     this.data = data;
     this.element = this.createElement(this.createTemplate());
     this.selectSubElements();
+
+    this.arrowElement = this.createArrowElement();
   }
 
   createElement(template) {
     const elem = document.createElement('div');
     elem.innerHTML = template;
     return elem.firstElementChild;
+  }
+
+  
+  createArrowElement() {
+    const tempElement = document.createElement("div");
+    tempElement.innerHTML = this.createArrowTemplate();
+    return tempElement.firstElementChild;
+  }
+
+  createArrowTemplate() {
+    return (
+      `<span data-element="arrow" class="sortable-table__sort-arrow">
+          <span class="sort-arrow"></span>
+      </span>`
+    );
   }
 
   createTemplate() {
@@ -58,24 +76,21 @@ export default class SortableTable {
       this.data.sort((a, b) => k * (a[field] - b[field]));
     }
 
-    this.subElements.body.innerHTML = this.createTableBodyTemplate();
-
-    this.addOrderAttribute(field, order);
-  }
-
-  addOrderAttribute(field, order) {
-    const elementOrderOld = this.subElements.header.querySelector(`[data-order]`);
-    if (elementOrderOld) {
-      elementOrderOld.removeAttribute('data-order');
+    if (config['sortable']) {
+      this.subElements.body.innerHTML = this.createTableBodyTemplate();
+      this.updateHeaders(field, order);
     }
-    const elementOrderNew = this.subElements.header.querySelector(`[data-id='${field}']`);
-    elementOrderNew.setAttribute('data-order', order);
+  }
+ 
+  updateHeaders(field, order) {
+    const elementOrder = this.subElements.header.querySelector(`[data-id='${field}']`);
+    elementOrder.appendChild(this.arrowElement);
+    elementOrder.dataset.order = order;
   }
 
   createTableHeaderTemplate() {
     return this.headerConfig.map(item => (`<div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}">
           <span>${item.title}</span>
-                ${item.sortable ? this.createArrowTemplate() : ''}
       </div>`
     )).join('');
   }
