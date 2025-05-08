@@ -3,8 +3,7 @@ import SortableTableV1 from '../../05-dom-document-loading/2-sortable-table-v1/i
 export default class SortableTable extends SortableTableV1 {
 
   isSortLocally;
-  arrowElement;
-
+ 
   constructor(headersConfig, {
     data = [],
     sorted = {}
@@ -23,10 +22,9 @@ export default class SortableTable extends SortableTableV1 {
 
   sort(idField, sortOrder) {
     if (this.isSortLocally) {
-      this.sortOnClient(
-        idField, sortOrder);
+      this.sortOnClient(idField, sortOrder);
     } else {
-      this.sortOnServer();
+      this.sortOnServer(idField, sortOrder);
     }
   }
 
@@ -34,7 +32,7 @@ export default class SortableTable extends SortableTableV1 {
     super.sort(idField, sortOrder);
   }
 
-  sortOnServer() {
+  sortOnServer(idField, sortOrder) {
     /**  */
   }
 
