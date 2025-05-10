@@ -95,16 +95,25 @@ export default class ProductForm {
     let elementUl = document.createElement('ul');
     elementUl.className = 'sortable-list';
 
-    const {
-      images
-    } = this.dataProduct[0];
+    const list = this.getListImagesData();
+
+    for (let itemImage of list) {
+      elementUl.appendChild(itemImage);
+    }
+
+    imageListContainer.append(elementUl);
+  }
+
+  getListImagesData() {
+    const {images} = this.dataProduct[0];
+    let listImages = [];
 
     for (const image of images) {
       const {source, url} = image;
       const elementLi = this.createElementLi(escapeHtml(String(source)), escapeHtml(String(url)));
-      elementUl.appendChild(elementLi);
+      listImages.push(elementLi);
     }
-    imageListContainer.append(elementUl);
+    return listImages;
   }
 
   createElementLi(source, url) {

@@ -21,21 +21,11 @@ export default class ProductForm extends ProductForm1 {
 
   renderImageListContainerElement() {
 
-    let items = [];
-
-    const {images} = this.dataProduct[0];
-
-    for (const image of images) {
-      const {source, url} = image;
-      const elementLi = this.createElementLi(escapeHtml(String(source)), escapeHtml(String(url)));
-      items.push(elementLi);
-    }
+    let items = super.getListImagesData();
 
     const sortableList = new SortableList({items});
 
-    let {imageListContainer} = this.subElements;
-
-    imageListContainer.append(sortableList.element);
+    this.subElements.imageListContainer.append(sortableList.element);
   }
 
 }
