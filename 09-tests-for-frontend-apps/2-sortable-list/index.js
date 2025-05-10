@@ -17,9 +17,11 @@ export default class SortableList {
     this.element.className = 'sortable-list';
     
     for (let item of this.items) {
-      item.className = 'sortable-list__item';
+      item.classList.add('sortable-list__item');
       this.element.append(item);
     }
+
+    return this.element;
   }
 
   handlePointerDown = (event) => {
@@ -37,8 +39,8 @@ export default class SortableList {
       if (event.target.closest('[data-grab-handle]')) {
         event.preventDefault();
 
-        this.shiftX = event.clientX - itemElement.getBoundingClientRect().left;
-        this.shiftY = event.clientY - itemElement.getBoundingClientRect().top;
+        this.shiftX = event.clientX - itemElement.getBoundingClientRect().x;
+        this.shiftY = event.clientY - itemElement.getBoundingClientRect().y;
 
         this.placeHolderElement = document.createElement('div');
         this.placeHolderElement.className = "sortable-list__placeholder";
@@ -52,7 +54,7 @@ export default class SortableList {
     
         this.element.append(itemElement);
     
-        this.moveElementAt(event.pageX, event.pageY);
+        this.moveElementAt(event.clientX, event.clientY);
     
         document.addEventListener('pointermove', this.handlePointerMove);
 
@@ -60,14 +62,14 @@ export default class SortableList {
     }
   }
 
-  moveElementAt(pageX, pageY) {
-    this.draggingElement.style.left = pageX - this.shiftX + 'px';
-    this.draggingElement.style.top = pageY - this.shiftY + 'px';
+  moveElementAt(clientX, clientY) {
+    this.draggingElement.style.left = clientX - this.shiftX + "px";
+    this.draggingElement.style.top = clientY - this.shiftY + "px";
   }  
 
   handlePointerMove = (event) => {
 
-    this.moveElementAt(event.pageX, event.pageY);
+    this.moveElementAt(event.clientX, event.clientY);
 
     const items = this.element.children;
 

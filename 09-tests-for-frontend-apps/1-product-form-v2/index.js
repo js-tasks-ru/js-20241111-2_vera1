@@ -1,16 +1,41 @@
-import SortableList from '../../2-sortable-list/src/index.js';
+import SortableList from '../../09-tests-for-frontend-apps/2-sortable-list/index.js';
 import escapeHtml from './utils/escape-html.js';
 import fetchJson from './utils/fetch-json.js';
+import ProductForm1 from '../../08-forms-fetch-api-part-2/1-product-form-v1/index.js';
 
 const IMGUR_CLIENT_ID = '28aaa2e823b03b1';
 const BACKEND_URL = 'https://course-js.javascript.ru';
 
-export default class ProductForm {
-  constructor (productId) {
+export default class ProductForm extends ProductForm1 {
+
+  constructor (productId = null) {
+    super(productId);
     this.productId = productId;
   }
 
   async render () {
+    await super.render();
 
+    return this.element;
   }
+
+  renderImageListContainerElement() {
+
+    let items = [];
+
+    const {images} = this.dataProduct[0];
+
+    for (const image of images) {
+      const {source, url} = image;
+      const elementLi = this.createElementLi(escapeHtml(String(source)), escapeHtml(String(url)));
+      items.push(elementLi);
+    }
+
+    const sortableList = new SortableList({items});
+
+    let {imageListContainer} = this.subElements;
+
+    imageListContainer.append(sortableList.element);
+  }
+
 }
