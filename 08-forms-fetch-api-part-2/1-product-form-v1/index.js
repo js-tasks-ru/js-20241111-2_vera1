@@ -92,16 +92,28 @@ export default class ProductForm {
   }
 
   renderImageListContainerElement(imageListContainer) {
-    let elementImageListContainer = imageListContainer.querySelector(`[class="sortable-list"]`);
-    const {
-      images
-    } = this.dataProduct[0];
+    let elementUl = document.createElement('ul');
+    elementUl.className = 'sortable-list';
+
+    const list = this.getListImagesData();
+
+    for (let itemImage of list) {
+      elementUl.appendChild(itemImage);
+    }
+
+    imageListContainer.append(elementUl);
+  }
+
+  getListImagesData() {
+    const {images} = this.dataProduct[0];
+    let listImages = [];
 
     for (const image of images) {
       const {source, url} = image;
       const elementLi = this.createElementLi(escapeHtml(String(source)), escapeHtml(String(url)));
-      elementImageListContainer.appendChild(elementLi);
+      listImages.push(elementLi);
     }
+    return listImages;
   }
 
   createElementLi(source, url) {
@@ -153,9 +165,7 @@ export default class ProductForm {
       <div class="form-group form-group__wide" data-element="sortable-list-container">
         <label class="form-label">Фото</label>
         <div data-element="imageListContainer">
-        <ul class="sortable-list">
-          
-          </ul>
+
           </div>
         <button type="button" name="uploadImage" class="button-primary-outline">
             <span>Загрузить</span>

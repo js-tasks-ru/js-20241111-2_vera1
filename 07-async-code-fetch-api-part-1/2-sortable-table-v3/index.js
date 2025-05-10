@@ -82,7 +82,7 @@ export default class SortableTable extends SortableTable2 {
         super.updateHeaders(id, order);
       }
     } catch (err) {
-      throw err;
+      console.log(err);
     }
   }
 
