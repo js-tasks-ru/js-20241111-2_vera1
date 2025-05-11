@@ -8,7 +8,7 @@ export default class SortableList {
     this.items = items;
     
     this.render();
-    this.initEventListeners();
+    this.createListeners();
   }
 
   render() {
@@ -114,18 +114,22 @@ export default class SortableList {
 
   }
 
-  initEventListeners() {
+  createListeners() {
     document.addEventListener('pointerdown', this.handlePointerDown);
     document.addEventListener('pointerup', this.handlePointerUp);
   }
 
-  remove() {
+  destroyListners() {
     document.removeEventListener('pointerdown', this.handlePointerDown);
     document.removeEventListener('pointerup', this.handlePointerUp);
+  }
+
+  remove() {
     this.element.remove();
   }
 
   destroy() {
+    this.destroyListners();
     this.remove();
   }
 }
