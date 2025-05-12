@@ -23,7 +23,7 @@ export default class SortableTable extends SortableTable2 {
     super(headersConfig, {
       data,
       sorted,
-    }, isSortLocally);
+    });
   
     this.data = data;
     this.url = new URL(url, BACKEND_URL);
@@ -33,28 +33,40 @@ export default class SortableTable extends SortableTable2 {
 
     this.render();
 
-    this.initEventListeners();
+  }
+
+  createUrl({ id, order, start, end }) {
+    const url = new URL(this.url, BACKEND_URL);
+
+    url.searchParams.set('_sort', id);
+    url.searchParams.set('_order', order);
+    url.searchParams.set('_start', start);
+    url.searchParams.set('_end', end);
+
+    return url;
   }
 
   async loadData(id, order, start = this.start, end = this.end) {
+    try {
+      this.element.classList.add('sortable-table_loading');
+      this.loading = true;
 
-    this.url.searchParams.set('_sort', id);
-    this.url.searchParams.set('_order', order);
-    this.url.searchParams.set('_start', start);
-    this.url.searchParams.set('_end', end);
+      const url = this.createUrl({ id, order, start, end });
+      const data = await fetchJson(url);
 
-    this.element.classList.add('sortable-table_loading');
-
-    const data = await fetchJson(this.url.toString());
-
-    if (data.length) {
-      this.element.classList.remove('sortable-table_empty');
-    } else {
-      this.element.classList.add('sortable-table_empty');
+      if (data.length) {
+        this.element.classList.remove('sortable-table_empty');
+      } else {
+        this.element.classList.add('sortable-table_empty');
+      }
+      return data;
+    } catch (err) {
+      console.warn(err);
+    } finally {
+      this.element.classList.remove('sortable-table_loading');
+      this.loading = false;
     }
-    this.element.classList.remove('sortable-table_loading');
-
-    return data;
+    return [];
   }
 
   async render() {
@@ -82,7 +94,7 @@ export default class SortableTable extends SortableTable2 {
         super.updateHeaders(id, order);
       }
     } catch (err) {
-      throw err;
+      console.log(err);
     }
   }
 
@@ -90,37 +102,31 @@ export default class SortableTable extends SortableTable2 {
     super.sortOnClient(id, order);
   }
 
-  initEventListeners() {
+  createListeners() {
+    super.createListeners();
+    this.handleWindowScroll = this.handleWindowScroll.bind(this);
+    document.addEventListener('scroll', this.handleWindowScroll);
+  }
+
+  destroyListners() {
+    super.destroyListners();
     document.addEventListener('scroll', this.handleWindowScroll);
   }
   
-  handleWindowScroll = async() => {
-
+  async handleWindowScroll() {
     const { bottom } = this.element.getBoundingClientRect();
     const { id, order } = this.sorted;
 
-    if (bottom < document.documentElement.clientHeight && !this.loading && !this.sortLocally) {
+    const shouldScroll = bottom < document.documentElement.clientHeight && !this.loading; // && !this.sortLocally
 
+    if (shouldScroll) {
       this.start = this.end;
       this.end = this.start + this.step;
 
-      this.loading = true;
-
       const data = await this.loadData(id, order, this.start, this.end);
-
-      this.updateScroll(Object.values(data));
-
-      this.loading = false;
+      this.data = [...this.data, ...data];
+      this.update(this.data);
     }
-
-  }
-
-  updateScroll(newDataScroll) {
-    const elementDiv = document.createElement('div');
-
-    elementDiv.innerHTML = this.createTableRows(newDataScroll);
-
-    this.subElements.body.append(...elementDiv.childNodes);
   }
 
   createTableRows(data) {
@@ -139,9 +145,8 @@ export default class SortableTable extends SortableTable2 {
     }).join('');
   }
 
-
-  remove() {
-    super.remove();
-    document.removeEventListener('scroll', this.handleWindowScroll);
+  destroy() {
+    super.destroy();
+    this.destroyListners();
   }
 }
